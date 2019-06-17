@@ -9,22 +9,31 @@ create table companies	(id_companies  int AUTO_INCREMENT PRIMARY KEY, name text,
 create table customers  (id_customers  int AUTO_INCREMENT PRIMARY KEY, name text, liquidity int		  		 );
 	
 create table dev_pro (PRIMARY KEY(id_developers, id_projects ), 
-					  id_developers int references developers(id_developers),
-                      id_projects int references projects(id_projects)			);
+					  id_developers  int,
+                      id_projects    int,
+					  FOREIGN KEY (id_developers)    references developers(id_developers) ON DELETE CASCADE,
+                      FOREIGN KEY (id_projects)      references projects(id_projects)	  ON DELETE CASCADE		
+                      );
 
-create table dev_ski (PRIMARY KEY(id_developers, id_skills ), 
-					  id_developers int references developers(id_developers),
-                      id_skills     int references skills    (id_skills)	   
+create table dev_ski (PRIMARY KEY(id_developers, id_skills ),
+					  id_developers int,
+                      id_skills int    ,
+					  FOREIGN KEY (id_developers)  references developers(id_developers)  ON DELETE CASCADE,
+                      FOREIGN KEY (id_skills)      references skills    (id_skills)	     ON DELETE CASCADE
 );
 
 create table com_pro (PRIMARY KEY(id_companies, id_projects),
-					  id_companies int references companies(id_companies),
-                      id_projects  int references projects(id_projects)
+					  id_companies int,
+                      id_projects  int,
+					  FOREIGN KEY (id_companies) references companies(id_companies)      ON DELETE CASCADE,
+                      FOREIGN KEY (id_projects)  references projects(id_projects)        ON DELETE CASCADE
 );
 
 create table cus_pro (PRIMARY KEY(id_customers, id_projects),
-					  id_customers int references customers(id_customers),
-                      id_projects  int references projects(id_projects)
+					  id_customers int,
+                      id_projects  int,
+					  FOREIGN KEY (id_customers)  references customers(id_customers)    ON DELETE CASCADE,
+                      FOREIGN KEY (id_projects)   references projects(id_projects)      ON DELETE CASCADE
 );
 
 -- Filling ------------------------------------------------------------------------------------------------
@@ -69,9 +78,9 @@ insert into dev_pro value
 (3,3),
 (3,4),
 (4,4),
-(4,5),
-(5,5),
-(5,1);
+(4,1),
+(5,1),
+(5,2);
 
 insert into dev_ski values
 (1,1),
@@ -133,6 +142,7 @@ group by pr.id_projects
 )  tab
 where tab.price = maxs;
 
+
 -- 3
 select sal.name, sum(sal.salary) all_salaryfrom from
 (
@@ -142,7 +152,7 @@ join skills sk on sk.id_skills = ds.id_skills
 where sk.name = 'java'
 ) sal ;
 
--- 4
+-- 4 
 alter table projects add column cost int ;
 
 update projects pr inner join(
@@ -152,11 +162,11 @@ select pr.id_projects,pr.name, sum(de.salary) price  from projects pr
 	group by pr.id_projects) mp 
     on mp.id_projects = pr.id_projects
     set pr.cost = mp.price
-    where pr.id_projects != null; 
+    where NOT pr.id_projects = 0; 
 ;
 select* from projects;
 
--- 5
+-- 5 
 select pr.name, pr.cost from projects pr
 join 
 	(
